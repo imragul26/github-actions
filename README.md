@@ -1,3 +1,80 @@
-# github-actions
-The test deployment failed with the error “unable to locate the chart, failed to perform fetch reference on source kit, basic credential not found.”
-We checked for any changes in cross-account permissions or credentials but didn’t find any. It seems to be an infra-level issue that needs further analysis, so as a temporary measure, we copied the image from Dev ECR to Test ECR, and the deployment worked.
+openapi: 3.0.3
+info:
+  title: Settlement API
+  version: 1.0.0
+  description: API to create a settlement record with either a details array or cache management object.
+
+paths:
+  /settlement:
+    post:
+      summary: Create a settlement
+      description: Creates a new settlement. The details object can either contain an array of entries or a single cache management object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settlement:
+                  type: object
+                  properties:
+                    settlementId:
+                      type: string
+                      example: "SETT-20251031-001"
+                    details:
+                      oneOf:
+                        - type: object
+                          properties:
+                            entries:
+                              type: array
+                              description: List of settlement entries
+                              items:
+                                type: object
+                                properties:
+                                  transactionId:
+                                    type: string
+                                    example: "TXN-001"
+                                  amount:
+                                    type: number
+                                    format: double
+                                    example: 2500.75
+                                  currency:
+                                    type: string
+                                    example: "INR"
+                          required:
+                            - entries
+                        - type: object
+                          properties:
+                            cacheManagement:
+                              type: object
+                              description: Cache management details for settlement
+                              properties:
+                                cacheId:
+                                  type: string
+                                  example: "CACHE-98765"
+                                lastUpdated:
+                                  type: string
+                                  format: date-time
+                                  example: "2025-10-31T12:30:00Z"
+                          required:
+                            - cacheManagement
+                  required:
+                    - settlementId
+                    - details
+      responses:
+        '201':
+          description: Settlement created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Settlement created successfully"
+                  settlementId:
+                    type: string
+                    example: "SETT-20251031-001"
+        '400':
+          description: Invalid input
