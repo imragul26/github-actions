@@ -10,3 +10,6 @@ When fetching the application from DB, call the CRM Origination API endpoint Get
 Map the CRM application status to the GET application response.
 Update the GET endpoint response spec to add the new status field.
 Confirm the status values with the team.
+
+
+"After successful submission, store the CRM application ID from the SubmitBulkApplication response in the database to enable retrieval of the CRM application status when the application is fetched."
