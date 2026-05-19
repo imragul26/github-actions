@@ -1,0 +1,12 @@
+Title
+Enhance GET Application Response with CRM Application Status
+
+Description
+The GET application response currently does not include the CRM application status. The status field needs to be added to the response so consumers can see the current CRM application status.
+When fetching the application from DB, call the CRM Origination API endpoint GetApplicationDetailsByApplicationId to retrieve and include the CRM application status in the response.
+Tasks
+
+When fetching the application from DB, call the CRM Origination API endpoint GetApplicationDetailsByApplicationId to retrieve the CRM application status.
+Map the CRM application status to the GET application response.
+Update the GET endpoint response spec to add the new status field.
+Confirm the status values with the team.
