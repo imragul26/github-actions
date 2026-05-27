@@ -1,4 +1,238 @@
+```yaml
+openapi: 3.1.0
+
+info:
+  title: Data Platform Adapter API
+tags:
+  - name: Reports
+    description: Reporting and reconciliation endpoints
+
 paths:
+
+  /reports/client-balance-interest-summary:
+
+    parameters:
+      - $ref: '#/components/parameters/authorization_header'
+
+    get:
+      tags:
+        - Reports
+
+      summary: Retrieve Client Balance Interest Summary Report
+
+      operationId: report-clientBalanceInterestSummary-retrieve
+
+      description: |
+        Retrieves client balance and interest summary information
+        based on the supplied filter criteria.
+
+        Parameter behavior:
+        - If accountNumber is not supplied, all accounts are returned.
+        - If advisorCode is not supplied, all advisors are returned.
+        - If dealerGroupCode is not supplied, all dealer groups are returned.
+        - If fromDate and endDate are not supplied, the current date is used.
+
+      parameters:
+
+        - $ref: '#/components/parameters/requestId_header'
+
+        - name: accountNumber
+          in: query
+          required: false
+          description: Account number filter
+          schema:
+            type: string
+            example: '115082253'
+
+        - name: advisorCode
+          in: query
+          required: false
+          description: Advisor group code filter
+          schema:
+            type: string
+            example: 'AXADV'
+
+        - name: dealerGroupCode
+          in: query
+          required: false
+          description: Dealer group code filter
+          schema:
+            type: string
+            example: 'VBC'
+
+        - name: fromDate
+          in: query
+          required: false
+          description: Report start date in YYYY-MM-DD format
+          schema:
+            type: string
+            format: date
+            example: '2026-05-01'
+
+        - name: endDate
+          in: query
+          required: false
+          description: Report end date in YYYY-MM-DD format
+          schema:
+            type: string
+            format: date
+            example: '2026-05-20'
+
+      responses:
+
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientBalanceInterestSummaryResponse'
+
+              examples:
+                success:
+                  value:
+                    totalBalanceAmount: 3096.81
+                    totalInterestApplied: 0
+                    records:
+                      - reportDate: '2026-05-15'
+                        dealerGroupCode: 'VBC'
+                        dealerGroupName: 'AUSIEX'
+                        advisorGroup: 'AXADV'
+                        advisorName: 'ROB COLLENDER'
+                        accountNumber: '115082253'
+                        accountName: 'AUSIEX ITF BRETT DEAN GRANT'
+                        productType: 'Retail'
+                        balanceAmount: 621.83
+                        interestApplied: 0
+
+                      - reportDate: '2026-05-20'
+                        dealerGroupCode: 'VBC'
+                        dealerGroupName: 'AUSIEX'
+                        advisorGroup: 'AXADV'
+                        advisorName: 'ROB COLLENDER'
+                        accountNumber: '115082253'
+                        accountName: 'AUSIEX ITF BRETT DEAN GRANT'
+                        productType: 'Retail'
+                        balanceAmount: 609.49
+                        interestApplied: 0
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+        '403':
+          $ref: '#/components/responses/Unauthorised'
+
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+        '502':
+          $ref: '#/components/responses/BadGateway'
+
+components:
+
+  parameters:
+
+    authorization_header:
+      name: Authorization
+      in: header
+      required: true
+      description: OAuth2 bearer token
+      schema:
+        type: string
+
+    requestId_header:
+      name: x-request-id
+      in: header
+      required: false
+      description: Request correlation identifier
+      schema:
+        type: string
+        example: '7f4d8c0e-9f54-4e8f-9ef3-22b2fcb9d101'
+
+  schemas:
+
+    ClientBalanceInterestSummaryResponse:
+      type: object
+
+      properties:
+
+        totalBalanceAmount:
+          type: number
+          format: double
+          description: Total balance amount across all returned records
+          example: 3096.81
+
+        totalInterestApplied:
+          type: number
+          format: double
+          description: Total interest applied across all returned records
+          example: 0
+
+        records:
+          type: array
+          description: Client balance interest summary records
+
+          items:
+            $ref: '#/components/schemas/ClientBalanceInterestSummaryRecord'
+
+      required:
+        - totalBalanceAmount
+        - totalInterestApplied
+        - records
+
+    ClientBalanceInterestSummaryRecord:
+      type: object
+
+      properties:
+
+        reportDate:
+          type: string
+          format: date
+          description: Report date
+          example: '2026-05-15'
+
+        dealerGroupCode:
+          type: string
+          description: Dealer group code
+          example: 'VBC'
+
+        dealerGroupName:
+          type: string
+          description: Dealer group name
+          example: 'AUSIEX'
+
+        advisorGroup:
+          type: string
+          description: Advisor group code
+          example: 'AXADV'
+
+        advisorName:
+          type: string
+          description: Advisor name
+          example: 'ROB COLLENDER'
+
+        accountNumber:
+          type: string
+          description: Client account number
+          example: '115082253'
+
+        accountName:
+          type: string
+          description: Client account name
+          example: 'AUSIEX ITF BRETT DEAN GRANT'
+
+        productType:
+          type: string
+          description: Product type
+          example: 'Retail'
+
+        balanceAmount:
+          type: number
+          format: double
+          description: Account balance amount
           example: 621.83
 
         interestApplied:
@@ -77,3 +311,4 @@ paths:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+```
