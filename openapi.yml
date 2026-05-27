@@ -1,0 +1,79 @@
+paths:
+          example: 621.83
+
+        interestApplied:
+          type: number
+          format: double
+          description: Interest applied amount
+          example: 0
+
+      required:
+        - reportDate
+        - dealerGroupCode
+        - dealerGroupName
+        - advisorGroup
+        - advisorName
+        - accountNumber
+        - accountName
+        - productType
+        - balanceAmount
+        - interestApplied
+
+    ErrorResponse:
+      type: object
+
+      properties:
+
+        code:
+          type: string
+          example: INVALID_REQUEST
+
+        message:
+          type: string
+          example: Invalid request parameters
+
+        traceId:
+          type: string
+          example: 7f4d8c0e-9f54-4e8f-9ef3-22b2fcb9d101
+
+  responses:
+
+    BadRequest:
+      description: Bad Request
+
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthenticated:
+      description: Authentication Failed
+
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorised:
+      description: Authorisation Failed
+
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalError:
+      description: Internal Server Error
+
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    BadGateway:
+      description: Bad Gateway
+
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
