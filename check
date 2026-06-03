@@ -13,3 +13,10 @@ Confirm the status values with the team.
 
 
 "After successful submission, store the CRM application ID from the SubmitBulkApplication response in the database to enable retrieval of the CRM application status when the application is fetched."
+
+
+1. App & Infra Tightly Coupled: App and infrastructure code in the same module means any hotfix deployment risks triggering unintended infrastructure changes, slowing releases and increasing risk. ArgoCD is a GitOps-based continuous delivery tool for Kubernetes that automatically syncs and deploys application changes directly from Git, without touching infrastructure. Implementing ArgoCD with separate pipelines for app and infra will allow independent deployments, faster hotfixes and full rollback capability.
+
+2. Remove DEV Environment: DEV environment has no active connectivity to any external systems — whenever the platform integrates with an external system, we only get one sandbox environment which is connected to UAT. Running pipelines through DEV adds no value and delays fixes reaching UAT. The average AWS bill for the DEV environment over the last 3 months is $5,000 USD/month, which is an avoidable cost. Removing DEV entirely will accelerate delivery, simplify the pipeline and save AUSIT approximately $60,000 USD annually.
+
+3. VDI RAM Upgrade (Minimum 32GB): All developers connect through VDI for their daily work. Several team members are currently below the 32GB RAM threshold causing slow performance, impacting development speed and productivity. Standardising all developer VDIs to a minimum of 32GB RAM will directly improve build times, local testing and overall developer efficiency.
