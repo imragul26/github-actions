@@ -1,0 +1,97 @@
+package com.ausiex.dataplatform.processor;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ClientBalanceInterestSummaryRequestProcessor implements Processor {
+
+    @Override
+    public void process(Exchange exchange) {
+
+        Message in = exchange.getIn();
+
+        in.setHeader("accountNumber",
+                in.getHeader("accountNumber", "", String.class));
+
+        in.setHeader("advisorCode",
+                in.getHeader("advisorCode", "", String.class));
+
+        in.setHeader("dealerGroupCode",
+                in.getHeader("dealerGroupCode", "", String.class));
+
+        in.setHeader("fromDate",
+                in.getHeader("fromDate", "", String.class));
+
+        in.setHeader("toDate",
+                in.getHeader("toDate", "", String.class));
+    }
+}
+
+
+
+
+from("direct:reportClientBalanceInterestSummaryRetrieve")
+    .routeId("ClientBalanceInterestSummaryRetrieve")
+
+    .to("log:dataplatform.cashBalanceInterestSummary.requestReceived?level=INFO&showHeaders=true")
+
+    .streamCaching(false)
+
+    .process(clientBalanceInterestSummaryRequestProcessor)
+
+    .to("log:dataplatform.cashBalanceInterestSummary.headersPrepared?level=INFO&showHeaders=true")
+
+    .to("sql:EXEC DP.usp_GetClientBalanceInterestSummary "
+        + ":#accountNumber,"
+        + ":#advisorCode,"
+        + ":#dealerGroupCode,"
+        + ":#fromDate,"
+        + ":#toDate"
+        + "?outputType=StreamList")
+
+    .to("log:dataplatform.cashBalanceInterestSummary.dbResponse?level=INFO&showBody=true")
+
+    .transform()
+        .method("mapper", "mapCashBalanceInterestSummary")
+
+    .to("log:dataplatform.cashBalanceInterestSummary.mappedResponse?level=INFO&showBody=true")
+
+    .removeHeaders("*")
+
+    .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+    .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+
+    .to("log:dataplatform.cashBalanceInterestSummary.jsonResponse?level=INFO&showBody=true");
+
+
+
+spring:
+  cloud:
+    aws:
+      region:
+        static: ap-southeast-2
+
+  config:
+    import: optional:aws-secretsmanager:dataplatform/credential/dataplatform-cs-db
+
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+    url: jdbc:sqlserver://${server_name}:${port};databaseName=${database_name};encrypt=true;trustServerCertificate=true
+
+    username: ${username}
+    password: ${password}
+
+    hikari:
+      pool-name: SQLServerHikariPool
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 1260000
+
+  jpa:
+    database: SQL_SERVER
+    show-sql: true
