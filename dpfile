@@ -1,3 +1,22 @@
+onException(Exception.class)
+    .handled(true)
+    .log(LoggingLevel.ERROR,
+         "Unexpected error occurred while processing request",
+         exception)
+    .removeHeaders("*")
+    .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+    .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(500))
+    .setBody(constant("""
+        {
+          "message": "Internal Server Error"
+        }
+        """));
+
+
+
+
+
+
 package com.ausiex.dataplatform.processor;
 
 import org.apache.camel.Exchange;
