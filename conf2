@@ -1,0 +1,107 @@
+A data platform holds approximately 750,000 existing customer records that need to be created in ComplyAdvantage. These records will be segregated by entity type and exported as CSV files to an SFTP location. The solution ingests these records through the existing Comply Adapter, applying the same business logic (existence check, then create/update with labelling and monitoring) that is applied to live CRM events today.
+The migration introduces a new Camel Loader Service that consumes a file-arrival notification, fetches the CSV file, converts each row to an Avro object, and publishes to four new Kafka migration topics, plus small changes to the Comply Adapter to consume from both existing and migration topics and to enforce rate limiting via a Throttle EIP.
+
+Current State: How the Adapter Works Today
+The Comply Adapter (Apache Camel / Spring Boot) consumes from four Kafka topics — one per entity type ([adviser], [legal entity], [client], [licensee] — placeholders, to be confirmed).
+Processing workflow for each record:
+
+Call getCustomer to check whether the record exists in ComplyAdvantage.
+If exists → call updateCustomer, then updateMonitor.
+If not exists → call createCustomer, then updateLabel.
+
+A single inbound Kafka message triggers 2–3 downstream API calls to ComplyAdvantage. This is an asynchronous, multi-step process.
+
+Migration Requirement
+The data platform will segregate 750,000 existing customer records by entity type, export each entity's records as a CSV file, and place the files in an SFTP location.
+These records must flow through the Comply Adapter's existing workflow so that identical business logic (get → create/update → label/monitor) is applied to them, just as it is to live CRM events. All API responses (HTTP 200 and 4xx) must be captured for auditing and reconciliation.
+
+Why Kafka for This Migration
+Reusing the existing Kafka intake (rather than building a new API entry point) gives several advantages for a bulk migration of this size:
+
+Asynchronous decoupling — the Loader publishes records as fast as it reads them, while the adapter consumes and processes at its own controlled pace. The two never block each other, which suits a multi-step process where each record makes 2–3 downstream API calls.
+Natural buffering — Kafka holds the records durably, absorbing the difference between fast file reading and rate-limited API calls, so the Loader does not need to manage backpressure.
+Built-in replay — Kafka retains messages by offset, so the migration can be replayed or resumed from any point without re-reading the source file.
+Isolation — dedicated migration topics keep migration traffic fully separate from live CRM traffic; existing systems are unaffected, and migration load can be paused or throttled independently.
+Reuse of proven logic — the adapter already contains the full business workflow and ComplyAdvantage integration. Kafka lets us feed migration records through that same, already-tested path with no business-logic change.
+
+
+Proposed Solution
+When a CSV file is placed in the SFTP/S3 location, a file-arrival notification is raised. A new Camel Loader Service consumes this notification, fetches the CSV file, converts each row to an Avro object using the existing schemas, and publishes to four new, migration-only Kafka topics. The Comply Adapter is configured to consume from both the existing topics (CRM) and the migration topics, applying identical business logic to both. Rate limiting is enforced via the Apache Camel Throttle EIP.
+Data Flow
+CSV files (data platform, split by entity)
+        │
+        ▼
+SFTP location / S3 bucket
+        │
+        ▼
+File-arrival notification
+        │
+        ▼
+Camel Loader Service
+   (fetch CSV, validate, map to Avro schema, publish to migration topic)
+        │
+        ▼
+4 new migration topics
+   (adviser.migration, client.migration, licensee.migration, legalEntity.migration)
+        │
+        ▼
+Comply Adapter
+   (consumes existing + migration topics;
+    get → create/update → label/monitor;
+    Throttle EIP on ComplyAdvantage call;
+    logs + tracks failed records)
+        │
+        ▼
+ComplyAdvantage Mesh API
+
+Architecture & Implementation Details
+The Camel Loader Service
+The Loader is a new Apache Camel / Spring Boot service, deployed on the existing EKS cluster using the same model as your other services. It is event-driven, not scheduled: it reacts to a file-arrival notification rather than running on a timer or being triggered manually.
+Its responsibility is deliberately thin — read CSV and publish to Kafka. It does not track records or handle business errors; that is the adapter's job. For each row it:
+
+Fetches the CSV file from S3 on receiving the notification.
+Validates the row at a basic structural level (mandatory fields present, parseable).
+Maps CSV columns to the existing Avro schema fields (CSV parsed with OpenCSV; objects built from POJOs generated from the existing .avsc via the avro-maven-plugin).
+For schema-mandatory fields not needed by ComplyAdvantage, sets default/sensible values (passed through unchanged, not sent to the API).
+Publishes the Avro event to the corresponding migration topic, using the record identifier from the CSV as the Kafka message key.
+
+Entity name, S3 prefix, and target topic are externalized as configuration, so the same service handles all four entities.
+Changes to the Comply Adapter
+The adapter requires three changes:
+
+Topic consumption — update the Kafka consumer configuration to subscribe to both the existing topic and its migration counterpart (e.g. adviser and adviser.migration). The internal routing and business logic remain unchanged.
+Rate limiting — add the Apache Camel Throttle EIP on the route segment that calls the ComplyAdvantage Mesh API, to cap the outbound call rate.
+Failed-record tracking — when a record fails (API error, timeout, unrecoverable error), the adapter logs the error (default behaviour) and additionally records the failure — keyed by the record identifier from the message — to a tracking store, so failures can be queried and reported. The adapter continues consuming subsequent messages; one failed record does not stop the migration.
+
+New Migration Topics
+Four new Kafka topics are created (adviser.migration, client.migration, licensee.migration, legalEntity.migration). These reuse the existing Avro schemas, registered under new Schema Registry subjects via TopicNameStrategy (e.g. adviser.migration-value), with no serializer configuration changes.
+The existing four topics remain untouched, so other systems consuming them are unaffected. Migration traffic is fully isolated and can be paused or replayed independently.
+
+Rate Limiting
+ComplyAdvantage enforces a per-account rate limit. Exceeding it returns HTTP 429 (API rate limit exceeded). Responses include Ratelimit-Limit, Ratelimit-Remaining, and Ratelimit-Reset headers.
+Throttle EIP Configuration
+The Apache Camel Throttle EIP caps the outbound Mesh API call rate on the adapter route. This is the primary control because it limits actual API calls, accounting for the 2–3 calls each record generates.
+50 calls per second:
+java.throttle(50).timePeriodMillis(1000)
+30 calls per 10-second window:
+java.throttle(30).timePeriodMillis(10000)
+The value can also be header/expression-driven so it is tunable at runtime without redeployment:
+java.throttle(header("throttleValue")).timePeriodMillis(1000)
+Since both BAU (CRM) and migration traffic flow through the same route, a single throttle enforces the limit across both streams combined.
+
+Dependency: ComplyAdvantage's per-account rate limit is not publicly documented. We must confirm the configured limit with our account manager before finalising the Throttle EIP value and migration run windows. Each record triggers 2–3 calls, so the confirmed limit drives total run duration.
+
+
+Response Capture & Reconciliation
+All Mesh API responses (HTTP 200 and 4xx) must be captured for monitoring and reconciliation. The adapter logs each ComplyAdvantage response (including record identifier and HTTP status); a CloudWatch Logs subscription filter streams logs via Kinesis Firehose into an S3 audit bucket; and Athena queries the S3 data to produce the reconciliation report — HTTP 200 vs 4xx counts, breakdown of 4xx reasons, and submitted-vs-completed tally per entity.
+
+Prerequisite: The adapter's logs must include a record identifier and HTTP status code per call. To be verified.
+
+
+Field Mapping
+The ComplyAdvantage Mesh API requires only ~15–20 fields. The platform's Kafka schema carries 100+ fields (an estimated 20–30 are mandatory). For this migration: fields required by the Mesh API are mapped from the source CSV; schema-mandatory fields not needed by the Mesh API are populated with default/sensible values (passed through unchanged but not forwarded to the API); optional schema fields are omitted if not present in the source.
+A detailed field-mapping specification will be produced during the implementation phase.
+
+Alternative Considered – REST API Intake on the Adapter
+We considered adding a REST API entry point to the adapter (it is currently Kafka-only) and pushing records through that API instead.
+Why this was not chosen: the per-record workflow is asynchronous with 2–3 internal API calls, so a synchronous REST API would need a new contract, request validation, authentication, and a job-status/tracking mechanism to report multi-step outcomes. All of that is new code and regression testing effort disproportionate to this migration activity. Reusing Kafka keeps the change minimal.
