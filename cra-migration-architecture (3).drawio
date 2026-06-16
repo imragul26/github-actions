@@ -1,0 +1,77 @@
+<mxfile host="app.diagrams.net" modified="2026-06-17T00:00:00.000Z" agent="ClaudeDesign" version="24.0.0">
+  <diagram id="cra-migration-flow" name="CRA Migration Flow">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Internal boundary (no label / generic) -->
+        <mxCell id="grp-internal" value="" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;fillColor=none;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1000" height="420" as="geometry" />
+        </mxCell>
+
+        <!-- Comply Advantage boundary (external) -->
+        <mxCell id="grp-comply" value="Comply Advantage (External)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;fillColor=none;strokeColor=#666666;verticalAlign=top;align=left;fontStyle=1;fontSize=13;spacingLeft=12;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="100" width="240" height="420" as="geometry" />
+        </mxCell>
+
+        <!-- BI Database -->
+        <mxCell id="bidb" value="BI Database" style="rounded=0;whiteSpace=wrap;html=1;shape=cylinder3;boundedLbl=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="250" width="120" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- SFTP Server (S3-backed) -->
+        <mxCell id="sftp" value="SFTP Server&#10;(S3-backed)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="250" y="255" width="120" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Notification -->
+        <mxCell id="notify" value="File-received&#10;Notification" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="430" y="150" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- CRA Migration Service -->
+        <mxCell id="migsvc" value="CRA Migration&#10;Service" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="265" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Kafka -->
+        <mxCell id="kafka" value="Kafka&#10;(migration topics)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;horizontal=0;" vertex="1" parent="1">
+          <mxGeometry x="620" y="160" width="60" height="300" as="geometry" />
+        </mxCell>
+
+        <!-- Adapter (inside the first box) -->
+        <mxCell id="adapter" value="Comply Advantage&#10;Adapter&#10;(Throttle EIP)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="260" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- External Mesh -->
+        <mxCell id="mesh" value="ComplyAdvantage&#10;Mesh API" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="260" width="150" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" value="CSV files" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="bidb" target="sftp"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- SFTP -> Notification (file arrival triggers notification) -->
+        <mxCell id="e2" value="triggers" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sftp" target="notify"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Notification -> CRA Migration Service -->
+        <mxCell id="e3" value="notify" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="notify" target="migsvc"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- CRA Migration Service -> SFTP (pull the file) -->
+        <mxCell id="e4" value="pull file" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#333333;fontSize=10;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="migsvc" target="sftp"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- CRA Migration Service -> Kafka -->
+        <mxCell id="e5" value="publish Avro" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="migsvc" target="kafka"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Kafka -> Adapter -->
+        <mxCell id="e6" value="consume" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="kafka" target="adapter"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Adapter -> Mesh (external) -->
+        <mxCell id="e7" value="throttled API calls" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;startArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="adapter" target="mesh"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
