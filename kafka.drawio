@@ -1,0 +1,108 @@
+<mxfile host="app.diagrams.net" agent="ClaudeDesign" version="24.0.0">
+  <diagram name="Data Flow" id="dataflow">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="Data Flow — Migration with Kafka Consumer Group" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="30" width="700" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Internal boundary -->
+        <mxCell id="bnd-internal" value="Internal Platform (EKS)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;fillColor=none;strokeColor=#999999;verticalAlign=top;align=left;fontStyle=2;fontSize=12;spacingLeft=10;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="90" width="1180" height="620" as="geometry"/>
+        </mxCell>
+
+        <!-- External boundary -->
+        <mxCell id="bnd-ext" value="Comply Advantage (External)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 4;fillColor=none;strokeColor=#999999;verticalAlign=top;align=left;fontStyle=2;fontSize=12;spacingLeft=10;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="90" width="320" height="620" as="geometry"/>
+        </mxCell>
+
+        <!-- BI Database -->
+        <mxCell id="db" value="BI Database" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="90" y="330" width="90" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- SFTP -->
+        <mxCell id="sftp" value="SFTP Server&#10;(S3-backed)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="230" y="340" width="110" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Notification -->
+        <mxCell id="notif" value="File-received&#10;Notification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="230" y="210" width="110" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- CRA Migration Service -->
+        <mxCell id="mig" value="CRA Migration&#10;Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="335" width="120" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Kafka with 10 partitions (stacked mini-cells) -->
+        <mxCell id="kafka" value="Kafka — migration topic" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;fontSize=12;fontStyle=1;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="580" y="150" width="150" height="440" as="geometry"/>
+        </mxCell>
+        <mxCell id="p0" value="Partition 0" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="185" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p1" value="Partition 1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="223" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p2" value="Partition 2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="261" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p3" value="Partition 3" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="299" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p4" value="Partition 4" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="337" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p5" value="Partition 5" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="375" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p6" value="Partition 6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="413" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p7" value="Partition 7" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="451" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p8" value="Partition 8" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="489" width="120" height="33" as="geometry"/></mxCell>
+        <mxCell id="p9" value="Partition 9" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6b3;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1"><mxGeometry x="595" y="527" width="120" height="33" as="geometry"/></mxCell>
+
+        <!-- Consumer group container -->
+        <mxCell id="cg" value="Comply Advantage Adapter — Consumer Group (10 replicas in EKS)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;align=center;fontSize=12;fontStyle=1;spacingTop=6;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="150" width="200" height="440" as="geometry"/>
+        </mxCell>
+        <mxCell id="r0" value="Replica 1 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="185" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r1" value="Replica 2 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="223" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r2" value="Replica 3 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="261" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r3" value="Replica 4 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="299" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r4" value="Replica 5 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="337" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r5" value="Replica 6 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="375" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r6" value="Replica 7 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="413" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r7" value="Replica 8 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="451" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r8" value="Replica 9 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="489" width="170" height="33" as="geometry"/></mxCell>
+        <mxCell id="r9" value="Replica 10 — consumer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="865" y="527" width="170" height="33" as="geometry"/></mxCell>
+
+        <!-- Mesh API -->
+        <mxCell id="api" value="ComplyAdvantage&#10;Mesh API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="345" width="160" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Ingestion edges -->
+        <mxCell id="e1" value="CSV files" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="db" target="sftp"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="triggers" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;exitX=0.5;exitY=0;entryX=0;entryY=0.5;" edge="1" parent="1" source="sftp" target="notif"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="notify" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="notif" target="mig"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="pull file" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#333333;fontSize=10;exitX=0;exitY=0.5;entryX=0.5;entryY=1;" edge="1" parent="1" source="mig" target="sftp"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="publish Avro&#10;(key = record id)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="mig" target="kafka"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Partition -> Replica (one-to-one) -->
+        <mxCell id="m0" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p0" target="r0"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m1" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p1" target="r1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m2" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p2" target="r2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m3" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p3" target="r3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m4" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p4" target="r4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m5" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p5" target="r5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m6" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p6" target="r6"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m7" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p7" target="r7"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m8" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p8" target="r8"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="m9" style="edgeStyle=none;html=1;endArrow=block;strokeColor=#82b366;" edge="1" parent="1" source="p9" target="r9"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Consumer group -> Mesh API -->
+        <mxCell id="e6" value="API calls (get → create/update → label/monitor)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;startArrow=block;strokeColor=#333333;fontSize=10;" edge="1" parent="1" source="cg" target="api"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Legend / note -->
+        <mxCell id="note" value="One partition is assigned to exactly one consumer replica (1:1). 10 partitions × 10 replicas = full parallelism. max.poll.records tunes batch size per poll for stability." style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="90" y="620" width="700" height="60" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
